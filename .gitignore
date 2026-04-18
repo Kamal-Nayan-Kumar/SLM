@@ -1,0 +1,70 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.egg-info/
+dist/
+build/
+.eggs/
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Jupyter
+.ipynb_checkpoints/
+*.ipynb_checkpoints
+
+# Large Data & Checkpoints (Now hosted on Hugging Face)
+data/
+checkpoints/
+logs/
+status/
+runs/
+wandb/
+
+# Binary arrays and compressed artifacts
+*.bin
+*.npy
+*.npz
+*.pt
+*.jsonl
+*.jsonl.zst
+
+# Hugging Face / model cache
+.cache/
+
+# IDE / OS / Servers
+.vscode/
+.vscode-server/
+.idea/
+.DS_Store
+Thumbs.db
+.lightning_studio/
+.lightningignore
+.cursor-server
+.windsurf-server
+.gemini/
+.triton/
+.codex/
+.antigravity-server/
+
+# LaTeX build artifacts
+*.aux
+*.bbl
+*.blg
+*.fdb_latexmk
+*.fls
+*.lof
+*.log
+*.lot
+*.out
+*.synctex.gz
+*.toc
+
+# Project-specific planning docs / reference files
+AGENT_TODO.md
+SLM_QuestionGen_Blueprint.md
+*.pdf
