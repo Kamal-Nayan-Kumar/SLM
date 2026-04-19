@@ -71,3 +71,8 @@ SLM_QuestionGen_Blueprint.md
 presentation.md
 MiniProjectTemplate/
 initial_hide/
+
+# Scrubbed single files
+push_to_hub.py
+report/eval_summary_comparison.png
+report/evaluation_metrics.png
