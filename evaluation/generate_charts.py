@@ -363,9 +363,9 @@ def plot_pipeline_summary():
         ("Raw Data\nCollection", "#dbeafe", "#1d4ed8", 0.5),
         ("Preprocessing\n& Dedup", "#ede9fe", "#6d28d9", 2.0),
         ("Tokenization\n(tiktoken)", "#fce7f3", "#be185d", 3.5),
-        ("Pretraining\n(A100 GPU)\n3B tokens", "#dcfce7", "#166534", 5.0),
+        ("Pretraining\n(H100 GPU)\n3B tokens", "#dcfce7", "#166534", 5.0),
         ("SFT Data\nPrep", "#fef3c7", "#92400e", 6.5),
-        ("Supervised\nFine-Tuning\n(L4 GPU)", "#ffedd5", "#c2410c", 8.0),
+        ("Supervised\nFine-Tuning\n(A100 GPU)", "#ffedd5", "#c2410c", 8.0),
         ("Inference\n& Evaluation", "#f0fdf4", "#15803d", 9.5),
     ]
 
