@@ -66,5 +66,8 @@ Thumbs.db
 
 # Project-specific planning docs / reference files
 AGENT_TODO.md
+AGENTS.md
 SLM_QuestionGen_Blueprint.md
+presentation.md
+MiniProjectTemplate/
 *.pdf
