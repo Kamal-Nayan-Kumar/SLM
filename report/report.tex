@@ -153,15 +153,15 @@ Evaluation on 50 held-out examples from SQuAD v2 (short) and HotpotQA (complex) 
 % ════════════════════════════════════════════════════════════════════
 \section{Introduction}
 
-Automatic question generation (AQG) is the task of producing meaningful, grammatically correct, and educationally relevant questions from a given passage of text. It is a foundational capability in educational technology, enabling a wide range of downstream applications such as adaptive quiz creation, intelligent tutoring systems, reading comprehension assessment, and self-study tools. Traditionally, preparing high-quality assessment questions is a manual, time-consuming process that requires domain expertise. As the scale and diversity of educational content grow rapidly—particularly in online and blended learning environments—automated approaches to question generation become increasingly important.
+Automatic question generation (AQG) is the task of producing meaningful, grammatically correct, and educationally relevant questions from a given passage of text. It is a foundational capability in educational technology, enabling a wide range of downstream applications such as adaptive quiz creation, intelligent tutoring systems, reading comprehension assessment, and self-study tools. Traditionally, preparing high-quality assessment questions is a manual, time-consuming process that requires domain expertise. As the scale and diversity of educational content grow rapidly-particularly in online and blended learning environments-automated approaches to question generation become increasingly important.
 
-Recent advances in large-scale transformer-based language models have shown that autoregressive decoder-only architectures can learn powerful generative behaviour from next-token prediction over large corpora \citep{radford2019language, vaswani2017attention}. However, the largest and most capable models—such as GPT-4 and LLaMA-2 \citep{touvron2023llama}—contain hundreds of billions of parameters and require enormous computational resources for both training and inference. Such systems are impractical for academic mini projects, resource-constrained institutional deployments, and privacy-sensitive educational environments where data cannot be sent to external APIs.
+Recent advances in large-scale transformer-based language models have shown that autoregressive decoder-only architectures can learn powerful generative behaviour from next-token prediction over large corpora \citep{radford2019language, vaswani2017attention}. However, the largest and most capable models-such as GPT-4 and LLaMA-2 \citep{touvron2023llama}-contain hundreds of billions of parameters and require enormous computational resources for both training and inference. Such systems are impractical for academics, resource-constrained institutional deployments, and privacy-sensitive educational environments where data cannot be sent to external APIs.
 
-This project investigates an alternative strategy: designing and training a compact but architecturally modern decoder-only transformer entirely from scratch, targeting the educational question-generation task specifically. Rather than borrowing pre-trained weights from a large model and applying parameter-efficient fine-tuning \textit{on top}, the project starts from randomly initialized weights and builds up competence through two sequential training stages: autoregressive pretraining on a large mixed-domain corpus, followed by instruction-style supervised fine-tuning on dedicated question-generation examples. This end-to-end approach gives complete control over every aspect of the system—from the data pipeline to the model architecture to the inference engine—and makes the project a true systems-engineering contribution rather than an application-layer wrapper.
+This project investigates an alternative strategy: designing and training a compact but architecturally modern decoder-only transformer entirely from scratch, targeting the educational question-generation task specifically. Rather than borrowing pre-trained weights from a large model and applying parameter-efficient fine-tuning \textit{on top}, the project starts from randomly initialized weights and builds up competence through two sequential training stages: autoregressive pretraining on a large mixed-domain corpus, followed by instruction-style supervised fine-tuning on dedicated question-generation examples. This end-to-end approach gives complete control over every aspect of the system-from the data pipeline to the model architecture to the inference engine-and makes the project a true systems-engineering contribution rather than an application-layer wrapper.
 
 The core motivation of this project is threefold:
 \begin{enumerate}[leftmargin=1.2cm]
-  \item \textbf{Educational completeness:} To understand and implement the full lifecycle of a modern language model, including corpus engineering, tokenization, architecture design, pretraining, supervised fine-tuning, and evaluation—covering every component that large-scale industrial systems use.
+  \item \textbf{Educational completeness:} To understand and implement the full lifecycle of a modern language model, including corpus engineering, tokenization, architecture design, pretraining, supervised fine-tuning, and evaluation-covering every component that large-scale industrial systems use.
   \item \textbf{Practical compactness:} To build a model that is small enough to train within reasonable academic compute budgets (an H100 GPU for pretraining; an A100 GPU for fine-tuning) yet capable enough to produce high-quality educational questions.
   \item \textbf{Task specialization:} To demonstrate that a compact model can be effectively specialized for a targeted generation task (educational question generation) using instruction-style supervised fine-tuning, yielding strong semantic quality despite its small parameter count.
 \end{enumerate}
@@ -173,7 +173,7 @@ Given a passage of educational text $P$, automatically generate a question $Q$ s
 \begin{itemize}[leftmargin=1.2cm]
   \item $Q$ is grammatically correct and fluent in English,
   \item $Q$ is directly answerable from the information present in $P$,
-  \item $Q$ belongs to a specified format (short-answer, MCQ, fill-in-the-blank, reasoning, or comparison),
+  \item $Q$ belongs to a specified format (short-answer, complex),
   \item the system runs efficiently on consumer hardware (CPU or single GPU) without requiring external API access.
 \end{itemize}
 
@@ -181,7 +181,7 @@ Given a passage of educational text $P$, automatically generate a question $Q$ s
 
 The main contributions of this project are:
 \begin{enumerate}[leftmargin=1.2cm]
-  \item Design and implementation of a 114.1M-parameter decoder-only transformer incorporating GQA, RoPE, SwiGLU, and RMSNorm—integrating research-proven architectural components into a single compact model.
+  \item Design and implementation of a 114.1M-parameter decoder-only transformer incorporating GQA, RoPE, SwiGLU, and RMSNorm-integrating research-proven architectural components into a single compact model.
   \item Construction of a full pretraining data pipeline: downloading four public corpora, cleaning via MinHash deduplication and quality heuristics, Unicode normalization, and interleaved tokenization into a 3B-token binary training file.
   \item Autoregressive pretraining from random initialization over 9,156 gradient steps on an NVIDIA H100 GPU, achieving a final validation loss of approximately 2.71.
   \item Construction of an instruction-style SFT dataset from SQuAD v2 and HotpotQA data in ChatML format, covering short-answer and complex reasoning question types.
@@ -198,11 +198,11 @@ The main contributions of this project are:
 
 \subsection{Transformer Language Models}
 
-The development of modern language models traces directly to the introduction of the Transformer architecture by \citet{vaswani2017attention}. The self-attention mechanism replaced recurrent and convolutional sequence models, enabling parallelization over sequence length and capturing long-range dependencies more effectively. The original Transformer was designed for sequence-to-sequence tasks such as machine translation; subsequent decoder-only variants—most notably the GPT series \citep{radford2019language}—showed that the language modelling objective (predicting the next token) is sufficient to acquire broad generative competence across many tasks.
+The development of modern language models traces directly to the introduction of the Transformer architecture by \citet{vaswani2017attention}. The self-attention mechanism replaced recurrent and convolutional sequence models, enabling parallelization over sequence length and capturing long-range dependencies more effectively. The original Transformer was designed for sequence-to-sequence tasks such as machine translation; subsequent decoder-only variants-most notably the GPT series \citep{radford2019language}-showed that the language modelling objective (predicting the next token) is sufficient to acquire broad generative competence across many tasks.
 
 The Chinchilla study by \citet{hoffmann2022training} established compute-optimal training laws: for a given computational budget, model quality is jointly determined by both the parameter count and the training token count. Critically, they showed that many large models of that era were significantly undertrained relative to their size. For a 114M-parameter model, the Chinchilla-optimal token budget is approximately 2.3B tokens; our 3B-token pretraining budget slightly exceeds this, reflecting a deliberate choice to train the model thoroughly given its small size.
 
-LLaMA-2 \citep{touvron2023llama} and TinyLlama \citep{zhang2024tinyllama} demonstrated that modern architectural choices-particularly the combination of RoPE, GQA, SwiGLU, and RMSNorm—can produce highly capable models even at the 1--7B scale. These design choices are directly adopted in this project, scaled down to the 114M parameter regime. The ``Textbooks Are All You Need'' work \citep{li2023textbooks} further supported the importance of data quality over data quantity for small models, motivating our careful corpus curation and cleaning pipeline.
+LLaMA-2 \citep{touvron2023llama} and TinyLlama \citep{zhang2024tinyllama} demonstrated that modern architectural choices-particularly the combination of RoPE, GQA, SwiGLU, and RMSNorm-can produce highly capable models even at the 1--7B scale. These design choices are directly adopted in this project, scaled down to the 114M parameter regime. The ``Textbooks Are All You Need'' work \citep{li2023textbooks} further supported the importance of data quality over data quantity for small models, motivating our careful corpus curation and cleaning pipeline.
 
 \subsection{Architectural Contributions}
 
@@ -220,7 +220,7 @@ Early approaches to automatic question generation relied on rule-based methods, 
 
 A comprehensive survey by \citet{zheng2023survey} reviewed over 200 question-generation papers across diverse formats (factoid, multi-hop, MCQ, open-ended) and highlighted several persistent challenges: generating questions for complex reasoning passages, maintaining factual accuracy without hallucination, producing well-formed distractor options for MCQ, and evaluating question quality beyond simple n-gram overlap.
 
-The standard evaluation datasets used in this project---SQuAD v2 \citep{rajpurkar2016squad}, RACE \citep{lai2017race}, and HotpotQA \citep{yang2018hotpotqa}---represent three complementary difficulty levels. SQuAD contains extractive factoid questions from Wikipedia passages. RACE comprises multiple-choice questions from English-language examinations across a wide range of topics. HotpotQA requires multi-hop reasoning across two documents, making it the most challenging of the three.
+The standard evaluation datasets used in this project---SQuAD v2 \citep{rajpurkar2016squad} and HotpotQA \citep{yang2018hotpotqa}---represent three complementary difficulty levels. SQuAD contains extractive factoid questions from Wikipedia passages. HotpotQA requires multi-hop reasoning across two documents, making it the most challenging of the three.
 
 The key limitation of encoder-decoder architectures like T5 and BART for question generation in resource-constrained settings is their inference overhead: separate encoder and decoder stacks require more memory and are architecturally more complex to deploy than a single decoder stack. Our decoder-only approach avoids encoder computation entirely, relies on a KV-cache for fast autoregressive decoding, and supports arbitrary-length input chunking natively.
 
@@ -240,13 +240,13 @@ BERTScore \citep{zhang2020bertscore} addresses the fundamental limitation of lex
 The complete project pipeline is organized into seven sequential stages, each independently checkpointed:
 
 \begin{enumerate}[leftmargin=1.2cm]
-  \item \textbf{Pretraining corpus collection} — download raw text from four public sources,
-  \item \textbf{Preprocessing and cleaning} — deduplication, quality filtering, HTML stripping, Unicode normalization,
-  \item \textbf{Tokenization} — convert cleaned text to memory-mapped binary files using \texttt{tiktoken},
-  \item \textbf{Autoregressive pretraining} — train the base language model from random initialization on the H100 GPU,
-  \item \textbf{SFT dataset construction} — convert reading-comprehension datasets to ChatML instruction format,
-  \item \textbf{Supervised fine-tuning} — specialize the pretrained model for question generation on the A100 GPU, and
-  \item \textbf{Inference and evaluation} — generate questions from new passages; compute metrics.
+  \item \textbf{Pretraining corpus collection} - download raw text from four public sources,
+  \item \textbf{Preprocessing and cleaning} - deduplication, quality filtering, HTML stripping, Unicode normalization,
+  \item \textbf{Tokenization} - convert cleaned text to memory-mapped binary files using \texttt{tiktoken},
+  \item \textbf{Autoregressive pretraining} - train the base language model from random initialization on the H100 GPU,
+  \item \textbf{SFT dataset construction} - convert reading-comprehension datasets to ChatML instruction format,
+  \item \textbf{Supervised fine-tuning} - specialize the pretrained model for question generation on the A100 GPU, and
+  \item \textbf{Inference and evaluation} - generate questions from new passages; compute metrics.
 \end{enumerate}
 
 \begin{figure}[H]
@@ -301,7 +301,7 @@ Each source is processed through a dedicated, resumable cleaning pipeline implem
 
 \subsection{Tokenization}
 
-Tokenization converts cleaned text to memory-mapped binary arrays using the \texttt{tiktoken r50k\_base} encoding \citep{radford2019language}. The base vocabulary has 50,257 tokens; three special-purpose tokens are appended: \texttt{<|im\_start|>} (ID 50257), \texttt{<|im\_end|>} (ID 50258), and \texttt{<|pad|>} (ID 50259), yielding a final vocabulary of 50,260 tokens.
+Tokenization converts cleaned text to memory-mapped binary arrays using the \texttt{tiktoken r50k\_base} encoding \citep{radford2019language}. The base vocabulary has 50,257 tokens; three special-purpose tokens are appended: \texttt{<|im\_start|>} (ID 50258), \texttt{<|im\_end|>} (ID 50259), and \texttt{<|pad|>} (ID 50260), yielding a final vocabulary of 50,260 tokens.
 
 Each document is encoded via \texttt{enc.encode\_ordinary(text)}, followed by an end-of-text token (ID 50256). Tokens are written as \texttt{numpy.uint16} values into per-source binary files \linebreak (\texttt{data/tokenized/\{source\}\_train.bin}). An interleaved master training file (\texttt{train.bin}) is constructed by sampling blocks of 4,096 tokens from each source according to the mixing ratios, then shuffling with a fixed random seed. A validation file (\texttt{val.bin}) is reserved from the last 0.5\% of each source.
 
@@ -407,7 +407,7 @@ The hidden dimension of 768 matches the smallest GPT-2 variant and provides a go
 
 \subsection{Supervised Fine-Tuning Dataset}
 
-The SFT dataset is constructed from two reading-comprehension sources, each converted to a shared ChatML instruction format:
+The SFT dataset is constructed from four reading-comprehension sources, each converted to a shared ChatML instruction format:
 \\
 \\
 
@@ -480,7 +480,7 @@ Pretraining uses the standard causal language modelling objective: maximise $\lo
   \label{tab:pretrain_hparams}
 \end{table}
 
-The learning rate schedule applies a linear warmup over the first 2,000 steps, followed by cosine decay from $\eta_\text{max}$ to $\eta_\text{min}$. This schedule has been found to produce more stable pretraining than step-decay schedules, particularly in the early phase when gradients are large. Weight decay is applied only to weight matrices (2D parameters), not to bias vectors, normalization gains, or embeddings—following the convention established in GPT-2 pretraining \citep{radford2019language}.
+The learning rate schedule applies a linear warmup over the first 2,000 steps, followed by cosine decay from $\eta_\text{max}$ to $\eta_\text{min}$. This schedule has been found to produce more stable pretraining than step-decay schedules, particularly in the early phase when gradients are large. Weight decay is applied only to weight matrices (2D parameters), not to bias vectors, normalization gains, or embeddings-following the convention established in GPT-2 pretraining \citep{radford2019language}.
 
 Gradient checkpointing re-computes activations during the backward pass rather than storing them, reducing peak GPU memory from $O(L \cdot B \cdot T \cdot d)$ to $O(B \cdot T \cdot d)$, where $L$ is the number of layers, $B$ is the batch size, $T$ is the sequence length, and $d$ is the hidden dimension. This allows training with a larger effective batch size on the H100.
 
@@ -520,7 +520,6 @@ The inference module (\texttt{src/inference/generate.py}) implements:
   \item \textbf{KV-cache}: stores key and value tensors from previously generated tokens, reducing per-step attention computation from $O(T^2)$ to $O(T)$;
   \item \textbf{Nucleus sampling} (top-$p$): at each step, samples from the smallest set of tokens whose cumulative probability exceeds $p=0.9$;
   \item \textbf{Repetition penalty}: reduces the logit of any token recently generated (within the last 128 tokens), discouraging degenerate loops;
-  \item \textbf{Early stopping heuristics}: stops generation on \texttt{<|im\_end|>}, on a question-mark for non-MCQ types, or when all four MCQ options appear.
 \end{itemize}
 
 Long documents (PDFs or text files) are chunked into overlapping windows of 3,000 tokens (overlap 500) before prompting, so the model receives focused context for each question.
@@ -611,11 +610,11 @@ The final model is evaluated on 50 held-out examples from each of two standard q
 
 \paragraph{ROUGE-L and METEOR.} ROUGE-L (0.2567 / 0.1943) and METEOR (0.2658 / 0.2256) show moderate partial overlap. ROUGE-L captures the longest common token subsequence, which gives partial credit for shared content words. METEOR additionally applies stemming and synonym matching, yielding slightly better correlation with human judgment than BLEU. The modest values on both metrics reflect the inherent diversity of valid question formulations on these benchmarks.
 
-\paragraph{HotpotQA vs.\ SQuAD gap.} HotpotQA requires multi-hop reasoning across two linked documents, making the question structure more complex and the acceptable answer set broader. The lower ROUGE-L and BERTScore on HotpotQA relative to SQuAD reflects this increased task difficulty—a 114M model has a smaller world-knowledge store compared to larger models, which can propagate multi-hop reasoning chains more reliably.
+\paragraph{HotpotQA vs.\ SQuAD gap.} HotpotQA requires multi-hop reasoning across two linked documents, making the question structure more complex and the acceptable answer set broader. The lower ROUGE-L and BERTScore on HotpotQA relative to SQuAD reflects this increased task difficulty-a 114M model has a smaller world-knowledge store compared to larger models, which can propagate multi-hop reasoning chains more reliably.
 
 \subsection{Inference Demonstrations}
 
-Figures~\ref{fig:demo_short1}--\ref{fig:demo_complex} show representative inference outputs from the deployed model for two short-answer inputs and one complex input.
+Figures~\ref{fig:demo_short1}--\ref{fig:demo_complex} show representative inference outputs from the trained model for two short-answer inputs and one complex input.
 
 \begin{figure}[H]
   \centering
@@ -647,7 +646,7 @@ Figures~\ref{fig:demo_short1}--\ref{fig:demo_complex} show representative infere
   \label{fig:param_comparison}
 \end{figure}
 
-The SLM achieves a BERTScore F1 of 0.89 with only 114.1M parameters, while typical encoder-decoder baselines for question generation (e.g., T5-Large: 770M, BART-Base: 139M) require 1.2--6.7$\times$ more parameters. Our decoder-only architecture avoids the cross-attention overhead of encoder-decoder models, benefits from KV-cache for fast single-pass generation, and runs inference efficiently on a standard CPU without a GPU—an important practical advantage for educational deployments in resource-constrained environments.
+The SLM achieves a BERTScore F1 of 0.89 with only 114.1M parameters, while typical encoder-decoder baselines for question generation (e.g., T5-Large: 770M, BART-Base: 139M) require 1.2--6.7$\times$ more parameters. Our decoder-only architecture avoids the cross-attention overhead of encoder-decoder models, benefits from KV-cache for fast single-pass generation, and runs inference efficiently on a standard CPU without a GPU-an important practical advantage for educational deployments in resource-constrained environments.
 
 \subsection{Training Compute and Efficiency}
 
@@ -665,12 +664,12 @@ The total pretraining cost is approximately 8 GPU-hours on an NVIDIA H100 GPU, h
 The following design choices in this project go beyond a standard transformer implementation and represent the key technical innovations of the work:
 
 \begin{enumerate}[leftmargin=1.2cm]
-  \item \textbf{GQA at 3:1 ratio} — reduces KV-cache memory by $3\times$ at no measurable perplexity cost, enabling longer context at the same GPU memory envelope.
-  \item \textbf{Response-only loss masking in SFT} — ensures only question-generation tokens contribute to the training loss, focusing the fine-tuning signal precisely and avoiding gradient pollution from prompt tokens.
-  \item \textbf{ChatML instruction format} — a shared dialogue format across both question types enables the model to learn a unified question-generation interface controlled by the system/user prompt.
-  \item \textbf{Gradient checkpointing + \texttt{bfloat16} mixed precision} — together reduce GPU memory by $\sim$3--4$\times$ compared to full-precision training without checkpointing.
-  \item \textbf{KV-cache inference with repetition penalty} — enables fast, non-repetitive generation on CPU without requiring a GPU at inference time.
-  \item \textbf{Resumable training pipeline} — each phase writes a status JSON file; on reconnection after network interruption, the pipeline resumes exactly from the last checkpoint.
+  \item \textbf{GQA at 3:1 ratio} - reduces KV-cache memory by $3\times$ at no measurable perplexity cost, enabling longer context at the same GPU memory envelope.
+  \item \textbf{Response-only loss masking in SFT} - ensures only question-generation tokens contribute to the training loss, focusing the fine-tuning signal precisely and avoiding gradient pollution from prompt tokens.
+  \item \textbf{ChatML instruction format} - a shared dialogue format across both question types enables the model to learn a unified question-generation interface controlled by the system/user prompt.
+  \item \textbf{Gradient checkpointing + \texttt{bfloat16} mixed precision} - together reduce GPU memory by $\sim$3--4$\times$ compared to full-precision training without checkpointing.
+  \item \textbf{KV-cache inference with repetition penalty} - enables fast, non-repetitive generation on CPU without requiring a GPU at inference time.
+  \item \textbf{Resumable training pipeline} - each phase writes a status JSON file; on reconnection after network interruption, the pipeline resumes exactly from the last checkpoint.
 \end{enumerate}
 
 % ════════════════════════════════════════════════════════════════════
@@ -680,12 +679,12 @@ The following design choices in this project go beyond a standard transformer im
 
 This project demonstrates the complete design, training, and deployment of a 114.1-million-parameter question-generation language model built entirely from scratch. Starting from randomly initialized weights and progressing through raw corpus collection, multi-stage cleaning and tokenization, autoregressive pretraining on a 3B-token mixed-domain corpus, instruction-style supervised fine-tuning, and quantitative evaluation, the work covers every component of a modern language model development pipeline at an academic scale.
 
-The resulting model achieves a BERTScore F1 of 0.8945 on SQuAD v2 and 0.8643 on HotpotQA—values competitive with encoder-decoder baselines (T5-Base, BART-Base) that use 1.2--6.7$\times$ more parameters—demonstrating that compact decoder-only models with modern architectural choices (GQA, RoPE, SwiGLU, RMSNorm) can serve as efficient and effective educational question-generation systems. The model runs inference in real time on a standard CPU, without requiring cloud GPU infrastructure, making it practical for institutional deployment in resource-constrained environments.
+The resulting model achieves a BERTScore F1 of 0.8945 on SQuAD v2 and 0.8643 on HotpotQA-values competitive with encoder-decoder baselines (T5-Base, BART-Base) that use 1.2--6.7$\times$ more parameters-demonstrating that compact decoder-only models with modern architectural choices (GQA, RoPE, SwiGLU, RMSNorm) can serve as efficient and effective educational question-generation systems. The model runs inference in real time on a standard CPU, without requiring cloud GPU infrastructure, making it practical for institutional deployment in resource-constrained environments.
 
 The project is, by design, a research prototype rather than a production system. Output quality is strongest for factoid short-answer questions, somewhat weaker for multi-hop reasoning questions, and still improving for MCQ distractor generation. Several clear directions exist for future improvement:
 \begin{itemize}[leftmargin=1.2cm]
   \item \textbf{Larger pretraining budget}: scaling from 3B to 10B tokens with a correspondingly larger model (e.g., 350M parameters) would substantially reduce perplexity and improve factual coverage.
-  \item \textbf{Richer SFT data}: curating more diverse, high-quality SFT examples—particularly for multi-hop reasoning and MCQ with verified distractors—would improve output quality in those formats.
+  \item \textbf{Richer SFT data}: curating more diverse, high-quality SFT examples-particularly for multi-hop reasoning and MCQ with verified distractors-would improve output quality in those formats.
   \item \textbf{Reinforcement learning from human feedback (RLHF)}: applying preference-based optimization after SFT could align the model more closely with pedagogical quality criteria beyond cross-entropy loss.
   \item \textbf{Retrieval augmentation}: equipping the model with a retrieval component would let it ground questions in retrieved factual evidence, reducing hallucination in multi-hop scenarios.
   \item \textbf{Broader educational benchmarks}: evaluation on domain-specific benchmarks (science, mathematics, history) would clarify the model's strengths and guide further data curation.
@@ -699,7 +698,7 @@ Overall, this project provides a strong, reproducible foundation for continued r
 \section{Project Resources and Links}
 
 \subsection{GitHub Repository}
-The complete project source code—including all data pipeline scripts, model implementation, training scripts, inference engine, evaluation utilities, and this report—is available at:\url{https://github.com/Kamal-Nayan-Kumar/SLM}
+The complete project source code-including all data pipeline scripts, model implementation, training scripts, inference engine, evaluation utilities, and this report-is available at:\url{https://github.com/Kamal-Nayan-Kumar/SLM}
 
 
 \subsection{HuggingFace Model Hub}
@@ -730,14 +729,14 @@ Both trained model checkpoints are publicly hosted on the HuggingFace Hub:
     \toprule
     \textbf{Module / Script} & \textbf{Purpose} \\
     \midrule
-    \texttt{src/model/config.py} & \texttt{ModelConfig} dataclass — single source of truth for all hyperparameters \\
+    \texttt{src/model/config.py} & \texttt{ModelConfig} dataclass - single source of truth for all hyperparameters \\
     \texttt{src/model/attention.py} & GQA with RoPE; KV-cache support for fast inference \\
     \texttt{src/model/ffn.py} & SwiGLU feed-forward network \\
     \texttt{src/model/model.py} & Full transformer stack; weight tying; \texttt{configure\_optimizers} \\
     \texttt{src/data/download\_pretrain.py} & Multi-source corpus download with resume logic \\
     \texttt{src/data/preprocess.py} & Per-source cleaning, dedup, quality filtering \\
     \texttt{src/data/tokenize\_pretrain.py} & Tokenization to \texttt{.bin} memory-mapped files \\
-    \texttt{src/data/build\_sft\_dataset.py} & ChatML SFT dataset construction from two sources \\
+    \texttt{src/data/build\_sft\_dataset.py} & ChatML SFT dataset construction from four sources \\
     \texttt{src/train/pretrain.py} & Full pretraining loop with logging, validation, checkpointing \\
     \texttt{src/train/sft.py} & SFT loop with response-only loss masking and early stopping \\
     \texttt{src/train/lr\_schedule.py} & Cosine decay with linear warmup \\
