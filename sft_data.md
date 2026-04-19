@@ -50,20 +50,3 @@ Generate {N} {difficulty} questions from the following text:
 <|im_start|>assistant
 {output}<|im_end|>
 ```
-
-## HuggingFace Dataset
-
-- **Link**: https://huggingface.co/datasets/nayan90k/slm-question-gen-sft-data
-- **Access**: Public
-
-## Citation
-
-If using this dataset, please cite:
-```
-@software{slm_question_gen,
-  author = {Kamal Nayan Kumar},
-  title = {SLM Question Generation Dataset},
-  year = {2024},
-  url = {https://huggingface.co/datasets/nayan90k/slm-question-gen-sft-data}
-}
-```
