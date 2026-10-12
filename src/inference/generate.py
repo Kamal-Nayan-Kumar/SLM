@@ -380,7 +380,9 @@ def main():
     # Write status
     status = {"phase": "inference", "done": True,
               "timestamp": __import__("datetime").datetime.now().isoformat()}
-    (ROOT / "status" / "phase6_inference.json").write_text(
+    status_dir = ROOT / "status"
+    status_dir.mkdir(parents=True, exist_ok=True)
+    (status_dir / "phase6_inference.json").write_text(
         json.dumps(status, indent=2)
     )
 

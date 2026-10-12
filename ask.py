@@ -13,6 +13,13 @@ from src.inference.generate import load_model, generate_from_text
 
 VALID_TYPES = ["short_answer", "complex"]
 
+# Map the CLI question type onto the "difficulty" values used by
+# src.inference.generate.build_prompt()
+TYPE_TO_DIFFICULTY = {
+    "short_answer": "short",
+    "complex": "complex",
+}
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--type", default="short_answer", choices=VALID_TYPES,
@@ -38,10 +45,11 @@ def main():
 
         questions = generate_from_text(
             para,
-            args.type,
-            model,
-            enc,
-            device,
+            n=1,
+            difficulty=TYPE_TO_DIFFICULTY[args.type],
+            model=model,
+            enc=enc,
+            device=device,
             temperature=args.temp,
             top_p=args.top_p,
             max_new_tokens=args.max_new_tokens,
